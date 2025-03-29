@@ -14,19 +14,19 @@ function _defu<T>(
 
   const object = Object.assign({}, defaults);
 
-  for (const key in baseObject) {
+  const merge = (key: keyof T) => {
     if (key === "__proto__" || key === "constructor") {
-      continue;
+      return;
     }
 
     const value = baseObject[key];
 
     if (value === null || value === undefined) {
-      continue;
+      return;
     }
 
     if (merger && merger(object, key, value, namespace)) {
-      continue;
+      return;
     }
 
     if (Array.isArray(value) && Array.isArray(object[key])) {
@@ -41,6 +41,22 @@ function _defu<T>(
     } else {
       object[key] = value;
     }
+  };
+
+  // Iterates over all enumerable string-keyed properties
+  // of the base object and its prototype chain
+  for (const key in baseObject) {
+    merge(key);
+  }
+
+  // Iterates over all enumerable symbol properties of the base object
+  for (const key of Object.getOwnPropertySymbols(baseObject)) {
+    const describer = Object.getOwnPropertyDescriptor(baseObject, key);
+    if (describer && !describer.enumerable) {
+      continue;
+    }
+
+    merge(key as keyof T);
   }
 
   return object;
