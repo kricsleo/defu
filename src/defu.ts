@@ -51,8 +51,7 @@ function _defu<T>(
 
   // Iterates over all enumerable symbol properties of the base object
   for (const key of Object.getOwnPropertySymbols(baseObject)) {
-    const describer = Object.getOwnPropertyDescriptor(baseObject, key);
-    if (describer && !describer.enumerable) {
+    if (!Object.prototype.propertyIsEnumerable.call(baseObject, key)) {
       continue;
     }
 
